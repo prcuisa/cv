@@ -1,721 +1,592 @@
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Prcuisa QR Code Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
-  <style>
-    :root {
-      --primary: #7c3aed;
-      --primary-light: #8b5cf6;
-      --primary-dark: #6d28d9;
-      --secondary: #3b82f6;
-      --secondary-light: #60a5fa;
-      --background: #f9fafb;
-      --surface: #ffffff;
-      --text-primary: #1f2937;
-      --text-secondary: #6b7280;
-      --border: #e5e7eb;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
+    <!-- Required Meta Tags Always Come First -->
+    <meta charset="utf-8">
+    <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://preline.co/">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Professional portfolio of Ecsa Ahcri Pracasa - Digital Experience & Strategy Professional at Bank Mandiri">
 
-    .dark-mode {
-      --primary: #8b5cf6;
-      --primary-light: #a78bfa;
-      --primary-dark: #7c3aed;
-      --secondary: #60a5fa;
-      --secondary-light: #93c5fd;
-      --background: #111827;
-      --surface: #1f2937;
-      --text-primary: #f9fafb;
-      --text-secondary: #d1d5db;
-      --border: #374151;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-    }
+    <!-- Title -->
+    <title>Ecsa Ahcri Pracasa | Digital Experience & Strategy Professional</title>
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../../favicon.ico">
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--background);
-      color: var(--text-primary);
-      transition: background 0.3s, color 0.3s;
-      line-height: 1.6;
-      min-height: 100vh;
-      padding: 2rem 1rem;
-    }
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+    <!-- Theme Check and Update -->
+    <script>
+        const html = document.querySelector('html');
+        const isLightOrAuto = localStorage.getItem('hs_theme') === 'light' || (localStorage.getItem('hs_theme') === 'auto' && !window.matchMedia('(prefers-color-scheme: dark)').matches);
+        const isDarkOrAuto = localStorage.getItem('hs_theme') === 'dark' || (localStorage.getItem('hs_theme') === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-    header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
+        if (isLightOrAuto && html.classList.contains('dark')) html.classList.remove('dark');
+        else if (isDarkOrAuto && html.classList.contains('light')) html.classList.remove('light');
+        else if (isDarkOrAuto && !html.classList.contains('dark')) html.classList.add('dark');
+        else if (isLightOrAuto && !html.classList.contains('light')) html.classList.add('light');
+    </script>
 
-    .logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 700;
-    }
-
-    h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .subtitle {
-      color: var(--text-secondary);
-      font-size: 1rem;
-      font-weight: 400;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .theme-toggle {
-      position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-      padding: 0.5rem 1rem;
-      background: var(--surface);
-      border-radius: 50px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      transition: all 0.2s;
-    }
-
-    .theme-toggle:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .theme-toggle input {
-      display: none;
-    }
-
-    .toggle-slider {
-      position: relative;
-      width: 48px;
-      height: 24px;
-      background: var(--border);
-      border-radius: 24px;
-      transition: background 0.3s;
-    }
-
-    .toggle-slider::before {
-      content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: white;
-      top: 2px;
-      left: 2px;
-      transition: transform 0.3s;
-    }
-
-    .theme-toggle input:checked + .toggle-slider {
-      background: var(--primary);
-    }
-
-    .theme-toggle input:checked + .toggle-slider::before {
-      transform: translateX(24px);
-    }
-
-    .app-container {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
-
-    @media (min-width: 1024px) {
-      .app-container {
-        grid-template-columns: 1fr 1fr;
+    <!-- CSS HS -->
+    <link rel="stylesheet" href="https://preline.co/assets/css/main.css?v=3.1.0">
+    <style>
+      .rounded-full{
+        border-radius: 10px !important;
       }
-    }
+    </style>
 
-    .form-section {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: var(--shadow);
-      transition: background 0.3s, box-shadow 0.3s;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .section-title svg {
-      width: 20px;
-      height: 20px;
-      color: var(--primary);
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      color: var(--text-primary);
-    }
-
-    .input-hint {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      margin-top: 0.25rem;
-    }
-
-    select, textarea, input[type="file"], input[type="range"], input[type="text"] {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 1rem;
-      background-color: var(--surface);
-      color: var(--text-primary);
-      transition: all 0.2s;
-    }
-
-    select:focus, textarea:focus, input[type="text"]:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-    }
-
-    input[type="range"] {
-      padding: 0;
-      height: 6px;
-      border-radius: 3px;
-      background: var(--border);
-      -webkit-appearance: none;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--primary);
-      cursor: pointer;
-    }
-
-    .range-value {
-      display: inline-block;
-      margin-left: 0.5rem;
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .button-group {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-top: 2rem;
-    }
-
-    button {
-      background: var(--primary);
-      color: white;
-      padding: 0.875rem 1.5rem;
-      border: none;
-      border-radius: 10px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      flex: 1;
-      min-width: 160px;
-    }
-
-    button:hover {
-      background: var(--primary-dark);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    button.secondary {
-      background: var(--secondary);
-    }
-
-    button.secondary:hover {
-      background: var(--secondary-light);
-    }
-
-    button.outline {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-    }
-
-    button.outline:hover {
-      background: var(--surface);
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    #qr-codes {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .qr-container {
-      background: var(--surface);
-      border-radius: 12px;
-      padding: 1.5rem;
-      text-align: center;
-      box-shadow: var(--shadow);
-      transition: all 0.3s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .qr-container:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .qr-container p {
-      word-break: break-word;
-      font-size: 0.75rem;
-      margin-top: 1rem;
-      color: var(--text-secondary);
-      max-height: 60px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 100%;
-    }
-
-    .qr-container button {
-      margin-top: 1rem;
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 0.875rem;
-    }
-
-    #loading {
-      display: none;
-      text-align: center;
-      margin-top: 1rem;
-    }
-
-    .spinner {
-      margin: 0 auto;
-      border: 4px solid rgba(124, 58, 237, 0.2);
-      border-top: 4px solid var(--primary);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 4rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--border);
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-
-    footer a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
-    }
-
-    .footer-logo {
-      color: var(--primary);
-      font-weight: 700;
-    }
-
-    .qr-container > div canvas {
-      width: 150px !important;
-      height: 150px !important;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 3rem 2rem;
-      color: var(--text-secondary);
-    }
-
-    .empty-state svg {
-      width: 64px;
-      height: 64px;
-      margin-bottom: 1rem;
-      opacity: 0.5;
-    }
-
-    .empty-state h3 {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .empty-state p {
-      max-width: 400px;
-      margin: 0 auto;
-    }
-  </style>
 </head>
-<body>
-  <div class="container">
-    <header>
-      <div class="logo">
-        <div class="logo-icon">P</div>
-        <h1>Prcuisa QR Code Generator</h1>
-      </div>
-      <p class="subtitle">Create beautiful, customizable QR codes for your marketing campaigns and business needs</p>
+
+<body class="dark:bg-neutral-900">
+    <!-- ========== HEADER ========== -->
+    <header class="sticky top-0 inset-x-0 flex flex-wrap md:justify-start md:flex-nowrap z-50 w-full text-sm">
+        <nav class="mt-4 relative max-w-2xl w-full bg-white border border-gray-200 rounded-full mx-2 py-2.5 md:flex md:items-center md:justify-between md:py-0 md:px-4 md:mx-auto dark:bg-neutral-900 dark:border-neutral-700">
+            <div class="px-4 md:px-0 flex justify-between items-center">
+                <div class="flex items-center">
+                    <!-- Logo -->
+                    <a class="flex-none rounded-md text-xl inline-block font-semibold focus:outline-hidden focus:opacity-80" href="#" aria-label="Ecsa Ahcri Pracasa">
+                        <span class="text-gray-800 dark:text-white font-bold">Ecsa Ahcri Pracasa</span>
+                    </a>
+                    <!-- End Logo -->
+                </div>
+
+                <div class="md:hidden">
+                    <!-- Toggle Button -->
+                    <button type="button" class="hs-collapse-toggle flex justify-center items-center size-7 border border-gray-200 text-gray-500 rounded-full hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+                        id="hs-navbar-header-floating-collapse" aria-expanded="false" aria-controls="hs-navbar-header-floating" aria-label="Toggle navigation" data-hs-collapse="#hs-navbar-header-floating">
+            <svg class="hs-collapse-open:hidden shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" x2="21" y1="6" y2="6"></line>
+              <line x1="3" x2="21" y1="12" y2="12"></line>
+              <line x1="3" x2="21" y1="18" y2="18"></line>
+            </svg>
+            <svg class="hs-collapse-open:block hidden shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18"></path>
+              <path d="m6 6 12 12"></path>
+            </svg>
+          </button>
+                    <!-- End Toggle Button -->
+                </div>
+            </div>
+
+            <div id="hs-navbar-header-floating" class="hidden hs-collapse overflow-hidden transition-all duration-300 basis-full grow md:block" aria-labelledby="hs-navbar-header-floating-collapse">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-end gap-2 md:gap-3 mt-3 md:mt-0 py-2 md:py-0 md:ps-7">
+                    <a class="py-0.5 md:py-3 px-4 md:px-1 border-s-2 md:border-s-0 md:border-b-2 border-gray-800 font-medium text-gray-800 focus:outline-hidden dark:border-neutral-200 dark:text-neutral-200" href="#" aria-current="page">Home</a>
+                    <a class="py-0.5 md:py-3 px-4 md:px-1 border-s-2 md:border-s-0 md:border-b-2 border-transparent text-gray-500 hover:text-gray-800 focus:outline-hidden dark:text-neutral-400 dark:hover:text-neutral-200" href="#experience">Experience</a>
+                    <a class="py-0.5 md:py-3 px-4 md:px-1 border-s-2 md:border-s-0 md:border-b-2 border-transparent text-gray-500 hover:text-gray-800 focus:outline-hidden dark:text-neutral-400 dark:hover:text-neutral-200" href="#education">Education</a>
+                    <a class="py-0.5 md:py-3 px-4 md:px-1 border-s-2 md:border-s-0 md:border-b-2 border-transparent text-gray-500 hover:text-gray-800 focus:outline-hidden dark:text-neutral-400 dark:hover:text-neutral-200" href="#skills">Skills</a>
+                </div>
+            </div>
+        </nav>
     </header>
+    <!-- ========== END HEADER ========== -->
 
-    <label class="theme-toggle">
-      <input type="checkbox" id="themeToggle">
-      <span class="toggle-slider"></span>
-      <span>Dark Mode</span>
-    </label>
+    <!-- ========== MAIN CONTENT ========== -->
+    <main id="content">
+        <div class="w-full max-w-2xl mx-auto pt-10 md:pt-16 px-4 sm:px-6 lg:px-8">
+            <!-- Profile -->
+            <div class="flex items-center gap-x-3">
+                <div class="shrink-0">
+                    <img class="shrink-0 size-16 rounded-full" src="https://raw.githubusercontent.com/prcuisa/beta/refs/heads/main/ecsa.jpg" alt="Avatar">
+                </div>
 
-    <div class="app-container">
-      <div class="form-section">
-        <h2 class="section-title">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-          </svg>
-          Configuration
-        </h2>
+                <div class="grow">
+                    <h1 class="text-lg font-medium text-gray-800 dark:text-neutral-200">
+                        Ecsa Ahcri Pracasa
+                    </h1>
+                    <p class="text-sm text-gray-600 dark:text-neutral-400">
+                        Professional Staff - Digital Experience & Strategy | Web Developer | IoT & Blockchain Enthusiast
+                    </p>
+                </div>
+            </div>
+            <!-- End Profile -->
 
-        <div class="form-group">
-          <label for="logoInput">Logo Image (Optional)</label>
-          <input type="file" id="logoInput" accept="image/*">
-          <p class="input-hint">Add your logo to customize the QR code</p>
-        </div>
+            <!-- About -->
+            <div class="mt-8">
+                <p class="text-sm text-gray-600 dark:text-neutral-400">
+                    Professional Staff di Bank Mandiri dengan pengalaman lebih dari 3 tahun di bidang Digital Experience dan Strategy. Berpengalaman dalam merancang dan menjalankan kampanye promosi, mengembangkan strategi engagement pengguna, serta mengelola konten website
+                    corporate. Memiliki keahlian teknis dalam pengembangan website (HTML5, CSS, Javascript) dan analitik digital (Firebase, Appsflyer). Tertarik pada pengembangan produk digital, IoT, dan Blockchain.
+                </p>
 
-        <div class="form-group">
-          <label for="logoSizeRange">Logo Size <span class="range-value" id="logoSizeLabel">50%</span></label>
-          <input type="range" id="logoSizeRange" min="0.05" max="0.8" step="0.01" value="0.5">
-          <p class="input-hint">Adjust the size of your logo relative to the QR code</p>
-        </div>
-
-        <div class="form-group">
-          <label for="sizeSelect">QR Code Size</label>
-          <select id="sizeSelect">
-            <option value="200">200 x 200</option>
-            <option value="300">300 x 300</option>
-            <option value="500">500 x 500 (HD)</option>
-            <option value="1000" selected>1000 x 1000 (Ultra HD)</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="dotStyleSelect">Dot Style</label>
-          <select id="dotStyleSelect">
-            <option value="rounded" selected>Rounded</option>
-            <option value="dots">Dots</option>
-            <option value="classy">Classy</option>
-            <option value="square">Square</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="cornerStyleSelect">Corner Style</label>
-          <select id="cornerStyleSelect">
-            <option value="square">Square</option>
-            <option value="dot">Dot</option>
-            <option value="extra-rounded" selected>Extra Rounded</option>
-          </select>
-        </div>
-
-        <h2 class="section-title" style="margin-top: 2rem;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-          </svg>
-          URL Data
-        </h2>
-
-        <div class="form-group">
-          <label for="urlPattern">Dynamic URL Pattern</label>
-          <input type="text" id="urlPattern" placeholder="https://bmri.id/reflivin?deep_link_sub1={param}&deep_link_sub2={param}">
-          <p class="input-hint">Use {param} as placeholders for dynamic values</p>
-        </div>
-
-        <div class="form-group">
-          <label for="csvInput">CSV Data</label>
-          <textarea id="csvInput" placeholder="branch1,codeA
-branch2,codeB
-..."></textarea>
-          <p class="input-hint">Comma-separated values, one row per QR code</p>
-        </div>
-
-        <div class="form-group">
-          <label for="urlInput">Manual URLs (Alternative)</label>
-          <textarea id="urlInput" placeholder="https://bmri.id/testdp?deep_link_sub1=11111&deep_link_sub2=121212
-https://bmri.id/testdp?deep_link_sub1=22222&deep_link_sub2=232323
-..."></textarea>
-          <p class="input-hint">One URL per line</p>
-        </div>
-
-        <div class="button-group">
-          <button onclick="generateQRCodes()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <ul class="mt-5 flex flex-col gap-y-3">
+                    <li class="flex items-center gap-x-2.5">
+                        <svg class="shrink-0 size-3.5 text-gray-800 dark:text-neutral-200" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
             </svg>
-            Generate QR Codes
-          </button>
-          <button class="secondary" onclick="downloadAll()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        <a class="text-[13px] text-gray-500 underline hover:text-gray-800 hover:decoration-2 focus:outline-hidden focus:decoration-2 dark:text-neutral-500 dark:hover:text-neutral-400" href="mailto:ecsa@live.co.uk">
+              ecsa@live.co.uk
+            </a>
+                    </li>
+
+                    <li class="flex items-center gap-x-2.5">
+                        <svg class="shrink-0 size-3.5 text-gray-800 dark:text-neutral-200" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
+              <path d="M9 18c-4.51 2-5-2-7-2"></path>
             </svg>
-            Download All
-          </button>
-          <button class="outline" onclick="downloadAllZip()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                        <a class="text-[13px] text-gray-500 underline hover:text-gray-800 hover:decoration-2 focus:outline-hidden focus:decoration-2 dark:text-neutral-500 dark:hover:text-neutral-400" href="https://linkedin.com/in/denecsa/">
+              linkedin.com/in/denecsa/
+            </a>
+                    </li>
+
+                    <li class="flex items-center gap-x-2.5">
+                        <svg class="shrink-0 size-3.5 text-gray-800 dark:text-neutral-200" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
             </svg>
-            Download ZIP
-          </button>
+                        <span class="text-[13px] text-gray-500 dark:text-neutral-500">
+              Depok, Indonesia
+            </span>
+                    </li>
+                </ul>
+            </div>
+            <!-- End About -->
+
+            <!-- Work Experience -->
+            <div id="experience" class="mt-10 sm:mt-14">
+                <h2 class="mb-5 font-medium text-gray-800 dark:text-neutral-200">
+                    Work Experience
+                </h2>
+
+                <!-- Timeline -->
+                <div>
+                    <!-- Item -->
+                    <div class="group relative flex gap-x-5">
+                        <!-- Icon -->
+                        <div class="relative group-last:after:hidden after:absolute after:top-8 after:bottom-2 after:start-3 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 dark:after:bg-neutral-700">
+                            <div class="relative z-10 size-6 flex justify-center items-center">
+                                <svg class="shrink-0 size-6 text-gray-600 dark:text-neutral-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                            </div>
+                        </div>
+                        <!-- End Icon -->
+
+                        <!-- Right Content -->
+                        <div class="grow pb-8 group-last:pb-0">
+                            <h3 class="mb-1 text-xs text-gray-600 dark:text-neutral-400">
+                                2020 - Present
+                            </h3>
+
+                            <p class="font-semibold text-sm text-gray-800 dark:text-neutral-200">
+                                Professional Staff - Digital Experience and Strategy
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-neutral-400">
+                                PT. Bank Mandiri (Persero) Tbk | Jakarta
+                            </p>
+
+                            <ul class="list-disc ms-6 mt-3 space-y-1.5">
+                                <li class="ps-1 text-sm text-gray-600 dark:text-neutral-400">
+                                    Merencanakan, mengembangkan, dan mengeksekusi kampanye promosi (diskon, cashback) untuk aplikasi Livin' dan Livin' by Mandiri
+                                </li>
+                                <li class="ps-1 text-sm text-gray-600 dark:text-neutral-400">
+                                    Menganalisis kinerja kampanye untuk mengukur efektivitas dan ROI, serta melakukan optimasi berkelanjutan
+                                </li>
+                                <li class="ps-1 text-sm text-gray-600 dark:text-neutral-400">
+                                    Mengembangkan dan mengimplementasikan strategi push notification yang terpersonalisasi berdasarkan segmentasi pengguna
+                                </li>
+                                <li class="ps-1 text-sm text-gray-600 dark:text-neutral-400">
+                                    Bertanggung jawab sebagai Webmaster untuk website corporate bankmandiri.co.id
+                                </li>
+                                <li class="ps-1 text-sm text-gray-600 dark:text-neutral-400">
+                                    Melakukan peremajaan (revamp) dan meluncurkan berbagai landing page produk digital banking
+                                </li>
+                                <li class="ps-1 text-sm text-gray-600 dark:text-neutral-400">
+                                    Berkontribusi dalam pengembangan fitur Livin' Sukha 1.0 & 2.0 dengan berkolaborasi erat bersama tim UI/UX dan Product Development
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- End Right Content -->
+                    </div>
+                    <!-- End Item -->
+
+                    <!-- Item -->
+                    <div class="group relative flex gap-x-5">
+                        <!-- Icon -->
+                        <div class="relative group-last:after:hidden after:absolute after:top-8 after:bottom-2 after:start-3 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 dark:after:bg-neutral-700">
+                            <div class="relative z-10 size-6 flex justify-center items-center">
+                                <svg class="shrink-0 size-6 text-gray-600 dark:text-neutral-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                            </div>
+                        </div>
+                        <!-- End Icon -->
+
+                        <!-- Right Content -->
+                        <div class="grow pb-8 group-last:pb-0">
+                            <h3 class="mb-1 text-xs text-gray-600 dark:text-neutral-400">
+                                2018 - 2019
+                            </h3>
+
+                            <p class="font-semibold text-sm text-gray-800 dark:text-neutral-200">
+                                Technical Support Engineer
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-neutral-400">
+                                PT. Media Sarana Data | Jakarta
+                            </p>
+
+                            <ul class="list-disc ms-6 mt-3 space-y-1.5">
+                                <li class="ps-1 text-sm text-gray-600 dark:text-neutral-400">
+                                    Memberikan dukungan teknis level 1 kepada pengguna terkait permasalahan hardware dan software via telepon, email, dan chat
+                                </li>
+                                <li class="ps-1 text-sm text-gray-600 dark:text-neutral-400">
+                                    Melakukan instalasi, konfigurasi, dan pemeliharaan sistem serta perangkat keras
+                                </li>
+                                <li class="ps-1 text-sm text-gray-600 dark:text-neutral-400">
+                                    Menyusun dan memelihara dokumentasi teknis serta memberikan pelatihan dasar kepada pengguna
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- End Right Content -->
+                    </div>
+                    <!-- End Item -->
+
+                    <!-- Item -->
+                    <div class="group relative flex gap-x-5">
+                        <!-- Icon -->
+                        <div class="relative group-last:after:hidden after:absolute after:top-8 after:bottom-2 after:start-3 after:w-px after:-translate-x-[0.5px] after:bg-gray-200 dark:after:bg-neutral-700">
+                            <div class="relative z-10 size-6 flex justify-center items-center">
+                                <svg class="shrink-0 size-6 text-gray-600 dark:text-neutral-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                            </div>
+                        </div>
+                        <!-- End Icon -->
+
+                        <!-- Right Content -->
+                        <div class="grow pb-8 group-last:pb-0">
+                            <h3 class="mb-1 text-xs text-gray-600 dark:text-neutral-400">
+                                2013 (Jan - Mar)
+                            </h3>
+
+                            <p class="font-semibold text-sm text-gray-800 dark:text-neutral-200">
+                                Internship - Network Engineer
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-neutral-400">
+                                PT. Interlink Technology | Jakarta
+                            </p>
+
+                            <ul class="list-disc ms-6 mt-3 space-y-1.5">
+                                <li class="ps-1 text-sm text-gray-600 dark:text-neutral-400">
+                                    Membantu tim dalam pemantauan, troubleshooting, dan instalasi perangkat jaringan (router, switch)
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- End Right Content -->
+                    </div>
+                    <!-- End Item -->
+                </div>
+                <!-- End Timeline -->
+            </div>
+            <!-- End Work Experience -->
+
+            <!-- Education -->
+            <div id="education" class="mt-10 sm:mt-14">
+                <h2 class="mb-3 font-medium text-gray-800 dark:text-neutral-200">
+                    Education
+                </h2>
+
+                <!-- Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="p-4 border border-gray-200 rounded-lg dark:border-neutral-700">
+                        <h3 class="mb-1 text-xs text-gray-600 dark:text-neutral-400">
+                            2019 - 2023
+                        </h3>
+
+                        <p class="font-semibold text-sm text-gray-800 dark:text-neutral-200">
+                            Master of Engineering Information Technology (M.T.)
+                        </p>
+
+                        <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+                            Gunadarma University, Jakarta
+                        </p>
+                        <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">
+                            Tesis: Keamanan Transaksi Internet of Things pada Jaringan Testnet Algorand Blockchain
+                        </p>
+                    </div>
+
+                    <div class="p-4 border border-gray-200 rounded-lg dark:border-neutral-700">
+                        <h3 class="mb-1 text-xs text-gray-600 dark:text-neutral-400">
+                            2014 - 2018
+                        </h3>
+
+                        <p class="font-semibold text-sm text-gray-800 dark:text-neutral-200">
+                            Bachelor of Computer System (S.Kom)
+                        </p>
+
+                        <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+                            Gunadarma University, Jakarta
+                        </p>
+                        <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">
+                            Tugas Akhir: Smart Electric Socket dengan Konsep Internet of Things<br> Pencapaian: Juara 2 Bluetooth Car Competition
+                        </p>
+                    </div>
+
+                    <div class="p-4 border border-gray-200 rounded-lg dark:border-neutral-700">
+                        <h3 class="mb-1 text-xs text-gray-600 dark:text-neutral-400">
+                            2011 - 2014
+                        </h3>
+
+                        <p class="font-semibold text-sm text-gray-800 dark:text-neutral-200">
+                            Jurusan Teknik Komputer & Jaringan
+                        </p>
+
+                        <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+                            SMK Al Hasra, Depok
+                        </p>
+                        <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">
+                            Pencapaian: Juara 3 Perakitan dan Instalasi Komputer se-Kota Depok
+                        </p>
+                    </div>
+                </div>
+                <!-- End Grid -->
+            </div>
+            <!-- End Education -->
+
+            <!-- Skills -->
+            <div id="skills" class="my-10 sm:my-14">
+                <h2 class="mb-5 font-medium text-gray-800 dark:text-neutral-200">
+                    Skills & Certifications
+                </h2>
+
+                <!-- List -->
+                <div class="space-y-3">
+                    <dl class="flex flex-col sm:flex-row gap-1">
+                        <dt class="min-w-40">
+              <span class="block text-sm text-gray-500 dark:text-neutral-500">Technical Skills:</span>
+            </dt>
+                        <dd>
+                            <ul>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    HTML5
+                                </li>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    CSS
+                                </li>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    JavaScript
+                                </li>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    Firebase
+                                </li>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    Appsflyer
+                                </li>
+                            </ul>
+                        </dd>
+                    </dl>
+
+                    <dl class="flex flex-col sm:flex-row gap-1">
+                        <dt class="min-w-40">
+              <span class="block text-sm text-gray-500 dark:text-neutral-500">Emerging Technologies:</span>
+            </dt>
+                        <dd>
+                            <ul>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    IoT
+                                </li>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    Blockchain (Ethereum, Solidity, Algorand)
+                                </li>
+                            </ul>
+                        </dd>
+                    </dl>
+
+                    <dl class="flex flex-col sm:flex-row gap-1">
+                        <dt class="min-w-40">
+              <span class="block text-sm text-gray-500 dark:text-neutral-500">Networking & System:</span>
+            </dt>
+                        <dd>
+                            <ul>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    Computer Networking
+                                </li>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    Linux System Administration
+                                </li>
+                            </ul>
+                        </dd>
+                    </dl>
+
+                    <dl class="flex flex-col sm:flex-row gap-1">
+                        <dt class="min-w-40">
+              <span class="block text-sm text-gray-500 dark:text-neutral-500">Design & Software:</span>
+            </dt>
+                        <dd>
+                            <ul>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    Figma
+                                </li>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    Adobe Family
+                                </li>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    Microsoft Office
+                                </li>
+                            </ul>
+                        </dd>
+                    </dl>
+
+                    <dl class="flex flex-col sm:flex-row gap-1">
+                        <dt class="min-w-40">
+              <span class="block text-sm text-gray-500 dark:text-neutral-500">Certifications:</span>
+            </dt>
+                        <dd>
+                            <ul>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    Ethereum and Solidity: The Complete Developer's Guide (Udemy)
+                                </li>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    Build an Ethereum Blockchain App (LinkedIn Learning)
+                                </li>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    UX Research for Agile Teams (LinkedIn Learning)
+                                </li>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    Internet of Things Programming Course (Google Launchpad)
+                                </li>
+                            </ul>
+                        </dd>
+                    </dl>
+
+                    <dl class="flex flex-col sm:flex-row gap-1">
+                        <dt class="min-w-40">
+              <span class="block text-sm text-gray-500 dark:text-neutral-500">Languages:</span>
+            </dt>
+                        <dd>
+                            <ul>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    Indonesia (Native)
+                                </li>
+                                <li class="me-1 after:content-[','] inline-flex items-center text-sm text-gray-800 dark:text-neutral-200">
+                                    English (Professional Working Proficiency)
+                                </li>
+                            </ul>
+                        </dd>
+                    </dl>
+                </div>
+                <!-- End List -->
+            </div>
+            <!-- End Skills -->
+
+            <!-- Contact -->
+            <div class="my-10 sm:my-14">
+                <h2 class="mb-5 font-medium text-gray-800 dark:text-neutral-200">
+                    Get In Touch
+                </h2>
+
+                <!-- Input -->
+                <form>
+                    <div class="p-1.5 flex flex-col sm:flex-row items-center gap-2 border border-gray-200 rounded-lg dark:border-neutral-700">
+                        <div class="relative w-full">
+                            <label for="hero-input" class="sr-only">Subscribe</label>
+                            <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3">
+                                <svg class="shrink-0 size-4 text-gray-400 dark:text-neutral-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                </svg>
+                            </div>
+                            <input type="text" id="hero-input" name="hero-input" class="py-1.5 sm:py-2 ps-9 pe-3 block w-full border-transparent rounded-lg sm:text-sm focus:border-transparent focus:ring-transparent disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:text-neutral-400 dark:placeholder-neutral-500"
+                                placeholder="Enter your email">
+                        </div>
+                        <a class="w-full sm:w-auto whitespace-nowrap py-2 px-2.5 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-gray-800 text-white hover:bg-gray-900 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:bg-white dark:text-neutral-800 dark:hover:bg-neutral-200"
+                            href="#">
+              Send
+              <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"></path>
+                <path d="m12 5 7 7-7 7"></path>
+              </svg>
+            </a>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-neutral-500">
+                        I'll get back to you as soon as possible.
+                    </p>
+                </form>
+                <!-- End Input -->
+            </div>
+            <!-- End Contact -->
         </div>
+    </main>
+    <!-- ========== END MAIN CONTENT ========== -->
 
-        <div id="loading">
-          <div class="spinner"></div>
-          <p>Generating QR Codes...</p>
+    <!-- ========== FOOTER ========== -->
+    <footer class="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-6 border-t border-gray-200 dark:border-neutral-700">
+            <div class="flex flex-wrap justify-between items-center gap-2">
+                <div>
+                    <p class="text-xs text-gray-600 dark:text-neutral-400">
+                        © 2025 Ecsa Ahcri Pracasa.
+                    </p>
+                </div>
+                <!-- End Col -->
+
+                <!-- List -->
+                <ul class="flex flex-wrap items-center">
+                    <li class="inline-block relative pe-4 text-xs last:pe-0 last-of-type:before:hidden before:absolute before:top-1/2 before:end-1.5 before:-translate-y-1/2 before:size-[3px] before:rounded-full before:bg-gray-400 dark:text-neutral-500 dark:before:bg-neutral-600">
+                        <a class="text-xs text-gray-500 underline hover:text-gray-800 hover:decoration-2 focus:outline-hidden focus:decoration-2 dark:text-neutral-500 dark:hover:text-neutral-400" href="mailto:ecsa@live.co.uk">
+              Email
+            </a>
+                    </li>
+                    <li class="inline-block relative pe-4 text-xs last:pe-0 last-of-type:before:hidden before:absolute before:top-1/2 before:end-1.5 before:-translate-y-1/2 before:size-[3px] before:rounded-full before:bg-gray-400 dark:text-neutral-500 dark:before:bg-neutral-600">
+                        <a class="text-xs text-gray-500 underline hover:text-gray-800 hover:decoration-2 focus:outline-hidden focus:decoration-2 dark:text-neutral-500 dark:hover:text-neutral-400" href="https://linkedin.com/in/denecsa/">
+              LinkedIn
+            </a>
+                    </li>
+                    <li class="inline-block pe-4 text-xs">
+                        <a class="text-xs text-gray-500 underline hover:text-gray-800 hover:decoration-2 focus:outline-hidden focus:decoration-2 dark:text-neutral-500 dark:hover:text-neutral-400" href="tel:+6285743438933">
+              Phone
+            </a>
+                    </li>
+                    <li class="inline-block">
+                        <!-- Dark Mode -->
+                        <button type="button" class="hs-dark-mode hs-dark-mode-active:hidden relative flex justify-center items-center size-7 border border-gray-200 text-gray-500 rounded-full hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+                            data-hs-theme-click-value="dark">
+              <span class="sr-only">Dark</span>
+              <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+              </svg>
+            </button>
+                        <button type="button" class="hs-dark-mode hs-dark-mode-active:flex hidden relative flex justify-center items-center size-7 border border-gray-200 text-gray-500 rounded-full hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+                            data-hs-theme-click-value="light">
+              <span class="sr-only">Light</span>
+              <svg class="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2"></path>
+                <path d="M12 20v2"></path>
+                <path d="m4.93 4.93 1.41 1.41"></path>
+                <path d="m17.66 17.66 1.41 1.41"></path>
+                <path d="M2 12h2"></path>
+                <path d="M20 12h2"></path>
+                <path d="m6.34 17.66-1.41 1.41"></path>
+                <path d="m19.07 4.93-1.41 1.41"></path>
+              </svg>
+            </button>
+                        <!-- End Dark Mode -->
+                    </li>
+                </ul>
+                <!-- End List -->
+            </div>
         </div>
-      </div>
-
-      <div class="form-section">
-        <h2 class="section-title">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-          </svg>
-          Generated QR Codes
-        </h2>
-
-        <div id="qr-codes">
-          <div class="empty-state">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-            </svg>
-            <h3>No QR Codes Yet</h3>
-            <p>Configure your settings and click "Generate QR Codes" to create your first QR code</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <footer>
-      <p>© 2025 · Design and Develop by <a href="https://www.prcuisa.com/" class="footer-logo">Prcuisa Labs</a> — <span style="color:var(--secondary);">Ecsa Ahcri Pracasa</span></p>
     </footer>
-  </div>
+    <!-- ========== END FOOTER ========== -->
 
-  <script>
-    let logoDataURL = null;
-    const qrCodes = [];
+    <!-- JS Implementing Plugins -->
 
-    document.getElementById("logoInput").addEventListener("change", function (e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          logoDataURL = event.target.result;
-        };
-        reader.readAsDataURL(file);
-      } else {
-        logoDataURL = null;
-      }
-    });
+    <!-- JS PLUGINS -->
+    <!-- Required plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/preline/dist/index.js"></script>
 
-    async function generateQRCodes() {
-      let urls = [];
-
-      const pattern = document.getElementById("urlPattern").value.trim();
-      const csvData = document.getElementById("csvInput").value.trim();
-      const staticUrls = document.getElementById("urlInput").value.trim();
-
-      if (pattern && csvData) {
-        const lines = csvData.split("\n").map(line => line.trim()).filter(line => line !== "");
-        const headers = [...pattern.matchAll(/{(\w+)}/g)].map(m => m[1]);
-
-        lines.forEach(line => {
-          const values = line.split(",");
-          if (values.length === headers.length) {
-            let url = pattern;
-            headers.forEach((key, i) => {
-              url = url.replace(`{${key}}`, encodeURIComponent(values[i]));
-            });
-            urls.push(url);
-          }
-        });
-      } else if (staticUrls) {
-        urls = staticUrls.split("\n").map(u => u.trim()).filter(u => u !== "");
-      } else {
-        alert("Please enter either a URL pattern with CSV data or direct URLs!");
-        return;
-      }
-
-      const size = parseInt(document.getElementById("sizeSelect").value);
-      const dotStyle = document.getElementById("dotStyleSelect").value;
-      const cornerStyle = document.getElementById("cornerStyleSelect").value;
-      const logoSize = parseFloat(document.getElementById("logoSizeRange").value);
-
-      const qrContainer = document.getElementById("qr-codes");
-      const loading = document.getElementById("loading");
-
-      qrContainer.innerHTML = "";
-      qrCodes.length = 0;
-      loading.style.display = "block";
-
-      for (let index = 0; index < urls.length; index++) {
-        const url = urls[index];
-
-        const qrCode = new QRCodeStyling({
-          width: size,
-          height: size,
-          data: url,
-          image: logoDataURL,
-          dotsOptions: { color: "#000", type: dotStyle },
-          cornersSquareOptions: { type: cornerStyle },
-          imageOptions: {
-            crossOrigin: "anonymous",
-            margin: size * 0.01,
-            imageSize: logoSize,
-          },
-        });
-
-        const container = document.createElement("div");
-        container.className = "qr-container";
-
-        const qrWrapper = document.createElement("div");
-        await qrCode.append(qrWrapper);
-
-        const label = document.createElement("p");
-        label.textContent = url;
-
-        const btn = document.createElement("button");
-        btn.textContent = "Download";
-        btn.onclick = () => {
-          const cleanName = sanitizeFileName(url);
-          qrCode.download({ name: `qr_${cleanName}`, extension: "png" });
-        };
-
-        container.appendChild(qrWrapper);
-        container.appendChild(label);
-        container.appendChild(btn);
-
-        qrContainer.appendChild(container);
-        qrCodes.push(qrCode);
-      }
-      loading.style.display = "none";
-    }
-
-    function sanitizeFileName(url) {
-      return url.replace(/^https?:\/\//, "").replace(/[^a-z0-9]/gi, "_").toLowerCase().slice(0, 50);
-    }
-
-    function downloadAll() {
-      const urls = document.getElementById("urlInput").value.split("\n").map(u => u.trim()).filter(u => u !== "");
-      qrCodes.forEach((qr, index) => {
-        const name = sanitizeFileName(urls[index] || "qr_" + index);
-        qr.download({ name: `qr_${name}`, extension: "png" });
-      });
-    }
-
-    async function downloadAllZip() {
-      if (qrCodes.length === 0) {
-        alert("No QR codes available for download.");
-        return;
-      }
-
-      const zip = new JSZip();
-      const urls = document.getElementById("urlInput").value.split("\n").map(u => u.trim()).filter(u => u !== "");
-
-      for (let i = 0; i < qrCodes.length; i++) {
-        const qr = qrCodes[i];
-        const url = urls[i] || `qr_${i}`;
-        const blob = await qr.getRawData("png");
-        const filename = `qr_${sanitizeFileName(url)}.png`;
-        zip.file(filename, blob);
-      }
-
-      const zipBlob = await zip.generateAsync({ type: "blob" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(zipBlob);
-      a.download = "qr_codes.zip";
-      a.click();
-    }
-
-    // Update logo size label
-    const logoSizeRange = document.getElementById("logoSizeRange");
-    const logoSizeLabel = document.getElementById("logoSizeLabel");
-    logoSizeRange.addEventListener("input", () => {
-      const percent = Math.round(parseFloat(logoSizeRange.value) * 100);
-      logoSizeLabel.textContent = `${percent}%`;
-    });
-
-    // Dark mode toggle
-    const themeToggle = document.getElementById("themeToggle");
-    if (localStorage.getItem("theme") === "dark") {
-      document.body.classList.add("dark-mode");
-      themeToggle.checked = true;
-    }
-
-    themeToggle.addEventListener("change", () => {
-      document.body.classList.toggle("dark-mode", themeToggle.checked);
-      localStorage.setItem("theme", themeToggle.checked ? "dark" : "light");
-    });
-
-    logoSizeLabel.textContent = `${Math.round(parseFloat(logoSizeRange.value) * 100)}%`;
-  </script>
 </body>
+
 </html>
